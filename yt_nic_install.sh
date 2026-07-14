@@ -12,6 +12,7 @@ module_root=/lib/modules/$kernel_release
 preferred_module_dir=$module_root/updates/motorcomm
 legacy_module_dir=$module_root/kernel/drivers/net/ethernet/motorcomm
 log_file=$script_dir/log.txt
+local_module_file=$script_dir/$drv_file
 
 need_update_initramfs=n
 support_distrib_list="ubuntu debian"
@@ -174,8 +175,13 @@ verify_installed_module()
 
 build_and_install()
 {
-	log_info "Build and install Motorcomm NIC driver module"
-	run_cmd make -C "$script_dir" all
+	if [ -e "$local_module_file" ]; then
+		log_info "Found existing module at $local_module_file, skip build"
+		run_cmd make -C "$script_dir/src" install
+	else
+		log_info "Build and install Motorcomm NIC driver module"
+		run_cmd make -C "$script_dir" all
+	fi
 }
 
 load_new_module()
